@@ -63,3 +63,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once __DIR__ . '/routes/api.php';
 
 echo "\n"; // Ensure there's a newline at the end of the response
+echo "testing the main route";

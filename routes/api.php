@@ -12,9 +12,20 @@ require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 header('Content-Type: application/json');
 
 $method = $_SERVER['REQUEST_METHOD'];
-$request_uri = $_SERVER['REQUEST_URI'];
-$base_path = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
-$route = str_replace($base_path, '', parse_url($request_uri, PHP_URL_PATH));
+
+// --------------------
+// Robust route parser
+// --------------------
+$request_uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$script_name = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
+
+// Remove script base path from URI
+$route = preg_replace('#^' . preg_quote($script_name, '#') . '#', '', $request_uri);
+
+// Normalize multiple slashes
+$route = preg_replace('#/+#', '/', $route);
+
+// Trim leading/trailing slashes
 $route = trim($route, '/');
 
 // --------------------
@@ -26,8 +37,8 @@ if ($route === 'api/setup/install' && $method === 'POST') {
     $setupController->install();
     exit();
 }
+
 if ($route === 'api/setup/install' && $method === 'GET') {
-    // $setupController->install();
     echo json_encode(['success' => false, 'message' => 'Use POST method to install the database.']);
     exit();
 }
@@ -153,4 +164,8 @@ if ($route === 'api/admin/export/pdf' && $method === 'GET') {
 // 404 Not Found
 // --------------------
 http_response_code(404);
-echo json_encode(['success' => false, 'message' => 'Route not found','current_route'=>$route]);
+echo json_encode([
+    'success' => false,
+    'message' => 'Route not found',
+    'current_route' => $route
+]);
