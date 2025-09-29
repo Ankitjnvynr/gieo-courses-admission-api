@@ -35,6 +35,8 @@ $allowedOrigins = [
     // add your production frontend domain here
     'https://yourdomain.com',
     'http://localhost',
+    'https://bhagwat-five.vercel.app',
+    'https://gieogitaeducourses.org'
 ];
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
