@@ -26,6 +26,11 @@ if ($route === 'api/setup/install' && $method === 'POST') {
     $setupController->install();
     exit();
 }
+if ($route === 'api/setup/install' && $method === 'GET') {
+    // $setupController->install();
+    echo json_encode(['success' => false, 'message' => 'Use POST method to install the database.']);
+    exit();
+}
 
 if ($route === 'api/setup/status' && $method === 'GET') {
     $setupController->checkStatus();

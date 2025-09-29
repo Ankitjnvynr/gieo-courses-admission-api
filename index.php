@@ -61,3 +61,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Route all requests
 // --------------------
 require_once __DIR__ . '/routes/api.php';
+
+echo "\n"; // Ensure there's a newline at the end of the response
