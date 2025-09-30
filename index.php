@@ -36,7 +36,8 @@ $allowedOrigins = [
     'https://yourdomain.com',
     'http://localhost',
     'https://bhagwat-five.vercel.app',
-    'https://gieogitaeducourses.org'
+    'https://gieogitaeducourses.org',
+    'http://www.gieogitaeducourses.org',
 ];
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
