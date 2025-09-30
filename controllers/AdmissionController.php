@@ -90,59 +90,90 @@ class AdmissionController {
         }
     }
 
-    public function getAll() {
-        try {
-            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-            $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
-            
-            $filters = [
-                'status' => $_GET['status'] ?? '',
-                'admission_year' => $_GET['admission_year'] ?? '',
-                'search' => $_GET['search'] ?? ''
-            ];
+public function getAll() {
+    try {
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+        
+        $filters = [
+            'status' => $_GET['status'] ?? '',
+            'admission_year' => $_GET['admission_year'] ?? '',
+            'search' => $_GET['search'] ?? ''
+        ];
 
-            $stmt = $this->admission->getAll($page, $limit, $filters);
-            $admissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            $total = $this->admission->getCount($filters);
-            $totalPages = ceil($total / $limit);
+        $stmt = $this->admission->getAll($page, $limit, $filters);
+        $admissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            http_response_code(200);
-            echo json_encode([
-                'success' => true,
-                'data' => $admissions,
-                'pagination' => [
-                    'current_page' => $page,
-                    'total_pages' => $totalPages,
-                    'total_records' => $total,
-                    'per_page' => $limit
-                ]
-            ]);
+        // Build base server URL dynamically
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+        $host = $_SERVER['HTTP_HOST'];
+        $baseUrl = $protocol . $host . "/";
 
-        } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+        // Attach full URLs to photo and signature paths
+        foreach ($admissions as &$admission) {
+            if (!empty($admission['photo_path'])) {
+                $admission['photo_url'] = $baseUrl . $admission['photo_path'];
+            }
+            if (!empty($admission['signature_path'])) {
+                $admission['signature_url'] = $baseUrl . $admission['signature_path'];
+            }
         }
-    }
 
-    public function getById($id) {
-        try {
-            $stmt = $this->admission->getById($id);
-            
-            if ($stmt->rowCount() > 0) {
-                $admission = $stmt->fetch(PDO::FETCH_ASSOC);
-                http_response_code(200);
-                echo json_encode(['success' => true, 'data' => $admission]);
-            } else {
-                http_response_code(404);
-                echo json_encode(['success' => false, 'message' => 'Admission not found']);
+        $total = $this->admission->getCount($filters);
+        $totalPages = ceil($total / $limit);
+
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'data' => $admissions,
+            'pagination' => [
+                'current_page' => $page,
+                'total_pages' => $totalPages,
+                'total_records' => $total,
+                'per_page' => $limit
+            ]
+        ]);
+
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+    }
+}
+
+
+  public function getById($id) {
+    try {
+        $stmt = $this->admission->getById($id);
+        
+        if ($stmt->rowCount() > 0) {
+            $admission = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // Build base server URL dynamically
+            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+            $host = $_SERVER['HTTP_HOST'];
+            $baseUrl = $protocol . $host . "/";
+
+            // Attach full URLs
+            if (!empty($admission['photo_path'])) {
+                $admission['photo_url'] = $baseUrl . $admission['photo_path'];
+            }
+            if (!empty($admission['signature_path'])) {
+                $admission['signature_url'] = $baseUrl . $admission['signature_path'];
             }
 
-        } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $admission]);
+        } else {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'Admission not found']);
         }
+
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
     }
+}
+
 
     public function updateStatus($id) {
         try {
