@@ -39,6 +39,10 @@ $allowedOrigins = [
     'https://gieogitaeducourses.org',
     'http://www.gieogitaeducourses.org',
     'https://www.gieogitaeducourses.org',
+    'https://edu.gieogitaeducourses.org',
+    'http://edu.gieogitaeducourses.org',
+    'https://www.edu.gieogitaeducourses.org',
+    'http://www.edu.gieogitaeducourses.org',
 ];
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
